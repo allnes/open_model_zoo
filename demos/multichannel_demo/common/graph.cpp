@@ -77,8 +77,21 @@ void IEGraph::initNetwork(const std::string& deviceName) {
         netReader.getNetwork().reshape(inShapes);
     }
 
+    const int coeff_denom = 2;
+    auto nnt = netReader.getNetwork();
+    InferenceEngine::InputInfo::Ptr inInf = nnt.getInputsInfo().begin()->second;
+    auto inputLayerSize = cv::Size(inInf->getTensorDesc().getDims()[3], inInf->getTensorDesc().getDims()[2]);
+    auto input_shapes = nnt.getInputShapes();
+    std::string input_name;
+    InferenceEngine::SizeVector input_shape;
+    std::tie(input_name, input_shape) = *input_shapes.begin();
+    input_shape[2] = inputLayerSize.height / coeff_denom;
+    input_shape[3] = inputLayerSize.width  / coeff_denom;
+    input_shapes[input_name] = input_shape;
+    nnt.reshape(input_shapes);
+
     InferenceEngine::ExecutableNetwork network;
-    network = ie.LoadNetwork(netReader.getNetwork(), deviceName);
+    network = ie.LoadNetwork(nnt, deviceName);
 
     InferenceEngine::InputsDataMap inputInfo(netReader.getNetwork().getInputsInfo());
     if (inputInfo.size() != 1) {
@@ -226,7 +239,7 @@ std::vector<std::shared_ptr<VideoFrame> > IEGraph::getBatchData(cv::Size frameSi
     }
 
     while(true) {
-        if (nullptr != req && InferenceEngine::OK == req->Wait(InferenceEngine::IInferRequest::WaitMode::RESULT_READY)) {
+        if (nullptr != req && InferenceEngine::OK == req->Wait(InferenceEngine::IInferRequest::WaitMode::STATUS_ONLY)) {
             auto detections = postprocessing(req, outputDataBlobNames, frameSize);
             for (decltype(detections.size()) i = 0; i < detections.size(); i ++) {
                 vframes[i]->detections = std::move(detections[i]);

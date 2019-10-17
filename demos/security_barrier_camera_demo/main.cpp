@@ -338,15 +338,15 @@ void Drawer::process() {
         lastShownframeId++;
         cv::Mat mat = firstGridIt->second.getMat();
 
-        constexpr float OPACITY = 0.6f;
-        fillROIColor(mat, cv::Rect(5, 5, 390, 115), cv::Scalar(255, 0, 0), OPACITY);
-        cv::putText(mat, "Detection InferRequests usage", cv::Point2f(15, 70), cv::FONT_HERSHEY_TRIPLEX, 0.7, cv::Scalar{255, 255, 255});
+        // constexpr float OPACITY = 0.6f;
+        // fillROIColor(mat, cv::Rect(5, 5, 390, 115), cv::Scalar(255, 0, 0), OPACITY);
+        // cv::putText(mat, "Detection InferRequests usage", cv::Point2f(15, 70), cv::FONT_HERSHEY_TRIPLEX, 0.7, cv::Scalar{255, 255, 255});
         cv::Rect usage(15, 90, 370, 20);
-        cv::rectangle(mat, usage, {0, 255, 0}, 2);
+        // cv::rectangle(mat, usage, {0, 255, 0}, 2);
         uint64_t nireq = context.nireq;
         uint64_t frameCounter = context.frameCounter;
         usage.width = static_cast<int>(usage.width * static_cast<float>(frameCounter * nireq - context.freeDetectionInfersCount) / (frameCounter * nireq));
-        cv::rectangle(mat, usage, {0, 255, 0}, cv::FILLED);
+        // cv::rectangle(mat, usage, {0, 255, 0}, cv::FILLED);
 
         context.drawersContext.framesAfterUpdate++;
         const std::chrono::steady_clock::time_point localT1 = std::chrono::steady_clock::now();
