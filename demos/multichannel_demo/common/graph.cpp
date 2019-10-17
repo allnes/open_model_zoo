@@ -225,16 +225,20 @@ std::vector<std::shared_ptr<VideoFrame> > IEGraph::getBatchData(cv::Size frameSi
         busyBatchRequests.pop();
     }
 
-    if (nullptr != req && InferenceEngine::OK == req->Wait(InferenceEngine::IInferRequest::WaitMode::RESULT_READY)) {
-        auto detections = postprocessing(req, outputDataBlobNames, frameSize);
-        for (decltype(detections.size()) i = 0; i < detections.size(); i ++) {
-            vframes[i]->detections = std::move(detections[i]);
-        }
-        if (perfTimerInfer.enabled()) {
-            auto endTime = std::chrono::high_resolution_clock::now();
-            perfTimerInfer.addValue(endTime - startTime);
+    while(true) {
+        if (nullptr != req && InferenceEngine::OK == req->Wait(InferenceEngine::IInferRequest::WaitMode::RESULT_READY)) {
+            auto detections = postprocessing(req, outputDataBlobNames, frameSize);
+            for (decltype(detections.size()) i = 0; i < detections.size(); i ++) {
+                vframes[i]->detections = std::move(detections[i]);
+            }
+            if (perfTimerInfer.enabled()) {
+                auto endTime = std::chrono::high_resolution_clock::now();
+                perfTimerInfer.addValue(endTime - startTime);
+            }
+            break;
         }
     }
+    
 
     if (nullptr != req) {
         std::unique_lock<std::mutex> lock(mtxAvalableRequests);
