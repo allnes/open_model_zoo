@@ -77,18 +77,18 @@ void IEGraph::initNetwork(const std::string& deviceName) {
         netReader.getNetwork().reshape(inShapes);
     }
 
-    const int coeff_denom = 2;
+    // const unsigned coeff_denom = 2;
     auto nnt = netReader.getNetwork();
-    InferenceEngine::InputInfo::Ptr inInf = nnt.getInputsInfo().begin()->second;
-    auto inputLayerSize = cv::Size(inInf->getTensorDesc().getDims()[3], inInf->getTensorDesc().getDims()[2]);
-    auto input_shapes = nnt.getInputShapes();
-    std::string input_name;
-    InferenceEngine::SizeVector input_shape;
-    std::tie(input_name, input_shape) = *input_shapes.begin();
-    input_shape[2] = inputLayerSize.height / coeff_denom;
-    input_shape[3] = inputLayerSize.width  / coeff_denom;
-    input_shapes[input_name] = input_shape;
-    nnt.reshape(input_shapes);
+    // InferenceEngine::InputInfo::Ptr inInf = nnt.getInputsInfo().begin()->second;
+    // auto inputLayerSize = cv::Size(inInf->getTensorDesc().getDims()[3], inInf->getTensorDesc().getDims()[2]);
+    // auto input_shapes = nnt.getInputShapes();
+    // std::string input_name;
+    // InferenceEngine::SizeVector input_shape;
+    // std::tie(input_name, input_shape) = *input_shapes.begin();
+    // input_shape[2] = inputLayerSize.height / coeff_denom;
+    // input_shape[3] = inputLayerSize.width  / coeff_denom;
+    // input_shapes[input_name] = input_shape;
+    // nnt.reshape(input_shapes);
 
     InferenceEngine::ExecutableNetwork network;
     network = ie.LoadNetwork(nnt, deviceName);
